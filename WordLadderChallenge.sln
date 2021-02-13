@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordLadderChallenge", "WordLadderChallenge\WordLadderChallenge.csproj", "{372B183F-0E07-42F1-84FF-18681C531A16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordLadderChallenge.Tests", "WordLadderChallenge.Tests\WordLadderChallenge.Tests.csproj", "{79026996-2EAA-4B67-B437-34BE3CD3BD9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{372B183F-0E07-42F1-84FF-18681C531A16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{372B183F-0E07-42F1-84FF-18681C531A16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{372B183F-0E07-42F1-84FF-18681C531A16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{372B183F-0E07-42F1-84FF-18681C531A16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79026996-2EAA-4B67-B437-34BE3CD3BD9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79026996-2EAA-4B67-B437-34BE3CD3BD9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79026996-2EAA-4B67-B437-34BE3CD3BD9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79026996-2EAA-4B67-B437-34BE3CD3BD9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {75C34850-1E2C-4EEA-A1F9-F474BA694D42}
+	EndGlobalSection
+EndGlobal
