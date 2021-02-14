@@ -2,28 +2,27 @@ using AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using WordLadderChallenge.Exceptions;
-using WordLadderChallenge.Models;
-using WordLadderChallenge.Solvers;
+using WordLadderChallenge.Strategies;
 using Xunit;
 
 namespace WordLadderChallenge.Tests
 {
-    public class WordLadderSolverTests
+    public class WordLadderDepthFirstStrategyTests
     {
-        private readonly WordLadderSolver _sut;
+        private readonly WordLadderDepthFirstStrategy _sut;
         private readonly Fixture _fixture;
         private readonly List<string> _dictionary;
 
         private readonly static List<string> _adjacentWords = new List<string> { "same", "came", "case", "cast", "cost" };
 
-        public WordLadderSolverTests()
+        public WordLadderDepthFirstStrategyTests()
         {
             _fixture = new Fixture();
 
             _dictionary = _fixture.Create<List<string>>();
             _dictionary.AddRange(_adjacentWords);
 
-            _sut = new WordLadderSolver() 
+            _sut = new WordLadderDepthFirstStrategy() 
             {
                 Dictionary = _dictionary,
                 SourceWord = _adjacentWords.First(),
@@ -123,8 +122,7 @@ namespace WordLadderChallenge.Tests
             var actualLadderStep = _sut.Solve();
 
             // Assert
-            Assert.Equal(expectedLadderSteps, actualLadderStep.Ladder);
-            Assert.Equal(_sut.DestinationWord, actualLadderStep.CurrentWord);
+            Assert.Equal(expectedLadderSteps, actualLadderStep);
         }
 
         [Fact]
@@ -134,7 +132,7 @@ namespace WordLadderChallenge.Tests
             var wordToRemove = _adjacentWords.Skip(1).Take(1).First();
             _sut.Dictionary.Remove(wordToRemove);
 
-            WordLadderStep expectedLadderStep = null;
+            IEnumerable<string> expectedLadderStep = null;
 
             // Act
             var actualLadderStep = _sut.Solve();
@@ -142,7 +140,6 @@ namespace WordLadderChallenge.Tests
             // Assert
             Assert.Equal(expectedLadderStep, actualLadderStep);
         }
-
 
     }
 }

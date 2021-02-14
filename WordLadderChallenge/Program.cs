@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using WordLadderChallenge.Solvers;
+using System.Linq;
+using WordLadderChallenge.Strategies;
 
 namespace WordLadderChallenge
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
@@ -17,19 +18,19 @@ namespace WordLadderChallenge
             if (HasValidArguments(args))
             {
                 var dictionary = File.ReadAllLines(path: args[2]);
-                var wordLadderSolver = new WordLadderSolver()
+                var wordLadderSolver = new WordLadderBidirectionalSearchStrategy()
                 {
                     SourceWord = args[0],
                     DestinationWord = args[1],
-                    Dictionary = dictionary,
+                    Dictionary = dictionary.ToList(),
                 };
                 var solution = wordLadderSolver.Solve();
-                if(solution is null)
+                if(solution is null || !solution.Any())
                 {
                     Console.WriteLine("No solution found");
                 } else
                 {
-                    File.WriteAllLines(args[3], solution.Ladder);
+                    File.WriteAllLines(args[3], solution);
                 }
             }
         }
