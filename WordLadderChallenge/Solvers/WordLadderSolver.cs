@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using WordLadderChallenge.Exceptions;
@@ -16,11 +17,21 @@ namespace WordLadderChallenge.Solvers
         {
             ValidInputParameters();
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             OptimizeDictionaryToWordLength(SourceWord.Length);
 
             var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
+            var result = FindNextLadderStepRecursive(wordLadderStepList).FirstOrDefault();
 
-            return FindNextLadderStepRecursive(wordLadderStepList).FirstOrDefault();
+            stopwatch.Stop();
+            if (Debugger.IsAttached)
+            {
+                Console.WriteLine("Solution found in {0} ms", stopwatch.Elapsed);
+            }
+
+            return result;
         }
 
         private bool FindNextLadderStep(List<WordLadderStep> wordLadderStepList)

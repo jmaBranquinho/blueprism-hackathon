@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using WordLadderChallenge.Solvers;
 
@@ -8,9 +9,14 @@ namespace WordLadderChallenge
     {
         static void Main(string[] args)
         {
-            if(HasValidArguments(args))
+            if (Debugger.IsAttached)
             {
-                var dictionary = File.ReadAllLines(path: args[3]);
+                args = ProvideDefaultArguments();
+            }
+
+            if (HasValidArguments(args))
+            {
+                var dictionary = File.ReadAllLines(path: args[2]);
                 var wordLadderSolver = new WordLadderSolver()
                 {
                     SourceWord = args[0],
@@ -23,7 +29,7 @@ namespace WordLadderChallenge
                     Console.WriteLine("No solution found");
                 } else
                 {
-                    File.WriteAllLines(args[4], solution.Ladder);
+                    File.WriteAllLines(args[3], solution.Ladder);
                 }
             }
         }
@@ -40,13 +46,21 @@ namespace WordLadderChallenge
                 Console.WriteLine("Source and/or destination word is not valid");
                 return false;
             }
-            if (!File.Exists(args[3]) || !Uri.IsWellFormedUriString(args[4], UriKind.RelativeOrAbsolute))
+            if (!File.Exists(args[2]))
             {
-                Console.WriteLine("Path to dictionary and/or path to result file is not valid");
+                Console.WriteLine("Path to dictionary is not valid");
                 return false;
             }
 
             return true;
+        }
+
+        private static string[] ProvideDefaultArguments()
+        {
+            var solutionFolder = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            var pathToDictionary = Path.Combine(solutionFolder, @"Dictionary.txt");
+            var pathToResults = Path.Combine(solutionFolder, @"Results.txt");
+            return new string[] { "same", "cost", pathToDictionary, pathToResults };
         }
     }
 }
