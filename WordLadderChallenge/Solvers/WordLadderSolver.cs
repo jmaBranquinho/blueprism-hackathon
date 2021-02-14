@@ -20,14 +20,7 @@ namespace WordLadderChallenge.Solvers
 
             var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
 
-            bool wasDestinationFound;
-            do
-            {
-                wasDestinationFound = FindNextLadderStep(wordLadderStepList);
-            }
-            while (!wasDestinationFound && wordLadderStepList.Any());
-
-            return wordLadderStepList.FirstOrDefault();
+            return FindNextLadderStepRecursive(wordLadderStepList).FirstOrDefault();
         }
 
         private bool FindNextLadderStep(List<WordLadderStep> wordLadderStepList)
@@ -61,6 +54,34 @@ namespace WordLadderChallenge.Solvers
             }
 
             return false;
+        }
+
+        private IEnumerable<WordLadderStep> FindNextLadderStepRecursive(ICollection<WordLadderStep> wordLadders)
+        {
+            var nextIterationWordLadderStepList = new List<WordLadderStep>();
+            foreach (var wordLadder in wordLadders)
+            {
+                var neighborList = Dictionary.Where(word => wordLadder.CurrentWord != word && HasOneCharacterDistance(word, wordLadder.CurrentWord)).ToList();
+
+                var containsLastWord = neighborList.Contains(DestinationWord);
+                if (containsLastWord)
+                {
+                    wordLadder.Ladder.Add(DestinationWord);
+                    return new List<WordLadderStep> { wordLadder };
+                }
+                else
+                {
+                    foreach (var neighbor in neighborList)
+                    {
+                        var newWordLadder = new WordLadderStep
+                        {
+                            Ladder = wordLadder.Ladder.Append(neighbor).ToList()
+                        };
+                        nextIterationWordLadderStepList.Add(newWordLadder);
+                    }
+                }
+            }
+            return FindNextLadderStepRecursive(nextIterationWordLadderStepList);
         }
 
         private bool HasOneCharacterDistance(string firstWord, string secondWord)
