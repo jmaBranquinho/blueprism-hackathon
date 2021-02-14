@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using WordLadderChallenge.Solvers;
 
 namespace WordLadderChallenge
 {
@@ -10,7 +11,14 @@ namespace WordLadderChallenge
             if(HasValidArguments(args))
             {
                 var dictionary = File.ReadAllLines(path: args[3]);
-                var wordLadderSolver = new WordLadderSolver(startWord: args[0], endWord: args[1], dictionary, pathToResultFile: args[4]);
+                var wordLadderSolver = new WordLadderSolver()
+                {
+                    SourceWord = args[0],
+                    DestinationWord = args[1],
+                    Dictionary = dictionary,
+                    PathToResultFile = args[4]
+                };
+                wordLadderSolver.Solve();
             }
         }
 

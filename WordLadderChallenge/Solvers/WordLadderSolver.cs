@@ -1,27 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using WordLadderChallenge.Exceptions;
 using WordLadderChallenge.Models;
 
 namespace WordLadderChallenge.Solvers
 {
     public class WordLadderSolver
     {
-        private readonly string _startWord;
-        private readonly string _endWord;
-        private readonly string _pathToResultFile;
-        private ICollection<string> _dictionary;
-
-        public WordLadderSolver(string startWord, string endWord, ICollection<string> dictionary, string pathToResultFile)
-        {
-            _startWord = startWord;
-            _endWord = endWord;
-            _dictionary = dictionary;
-            _pathToResultFile = pathToResultFile;
-        }
+        public string SourceWord { get; set; }
+        public string DestinationWord { get; set; }
+        public string PathToResultFile { get; set; }
+        public ICollection<string> Dictionary { get; set; }
 
         public WordLadderStep Solve()
         {
-            throw new NotImplementedException();
+            ValidInputParameters();
+
+            Dictionary = OptimizeDictionaryToWordLength(Dictionary, SourceWord.Length);
+
+            var currentWordLadderStep = new WordLadderStep { Word = SourceWord };
+
+            return currentWordLadderStep;
+        }
+
+        private void ValidInputParameters()
+        {
+            if (string.IsNullOrWhiteSpace(SourceWord) || string.IsNullOrWhiteSpace(DestinationWord))
+            {
+                throw new InvalidWordException();
+            }
+            if (SourceWord.Length != DestinationWord.Length)
+            {
+                throw new WordLengthMismatchException(SourceWord, DestinationWord);
+            }
+            var isDictionaryEmpty = Dictionary == null || !Dictionary.Any();
+            var isValidDictionary = !isDictionaryEmpty && Dictionary.Contains(SourceWord) && Dictionary.Contains(DestinationWord);
+            if (!isValidDictionary)
+            {
+                throw new InvalidDictionaryException();
+            }
+        }
+
+        private ICollection<string> OptimizeDictionaryToWordLength(ICollection<string> dictionary, int length)
+        {
+            return dictionary.Where(word => word.Length == length).ToList();
         }
     }
 }
