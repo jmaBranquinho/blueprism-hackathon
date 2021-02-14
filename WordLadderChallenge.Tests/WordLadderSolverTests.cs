@@ -2,6 +2,7 @@ using AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using WordLadderChallenge.Exceptions;
+using WordLadderChallenge.Models;
 using WordLadderChallenge.Solvers;
 using Xunit;
 
@@ -12,7 +13,6 @@ namespace WordLadderChallenge.Tests
         private readonly WordLadderSolver _sut;
         private readonly Fixture _fixture;
         private readonly List<string> _dictionary;
-        private readonly string _pathToResultFile;
 
         private readonly static List<string> _adjacentWords = new List<string> { "same", "came", "case", "cast", "cost" };
 
@@ -22,12 +22,10 @@ namespace WordLadderChallenge.Tests
 
             _dictionary = _fixture.Create<List<string>>();
             _dictionary.AddRange(_adjacentWords);
-            _pathToResultFile = _fixture.Create<string>();
 
             _sut = new WordLadderSolver() 
             {
                 Dictionary = _dictionary,
-                PathToResultFile = _pathToResultFile,
                 SourceWord = _adjacentWords.First(),
                 DestinationWord = _adjacentWords.Last(),
             };
@@ -113,6 +111,38 @@ namespace WordLadderChallenge.Tests
             // Assert
             Assert.Equal(expectedDictionary, _sut.Dictionary);
         }
+
+
+        [Fact]
+        public void Solve_WhenWordLadderIsFoundSucessfully_ShouldReturnWordLadderSteps()
+        {
+            // Arrange
+            var expectedLadderSteps = _adjacentWords;
+
+            // Act
+            var actualLadderStep = _sut.Solve();
+
+            // Assert
+            Assert.Equal(expectedLadderSteps, actualLadderStep.Ladder);
+            Assert.Equal(_sut.DestinationWord, actualLadderStep.CurrentWord);
+        }
+
+        [Fact]
+        public void Solve_WhenWordLadderIsNotFound_ShouldReturnWordLadderSteps()
+        {
+            // Arrange
+            var wordToRemove = _adjacentWords.Skip(1).Take(1).First();
+            _sut.Dictionary.Remove(wordToRemove);
+
+            WordLadderStep expectedLadderStep = null;
+
+            // Act
+            var actualLadderStep = _sut.Solve();
+
+            // Assert
+            Assert.Equal(expectedLadderStep, actualLadderStep);
+        }
+
 
     }
 }

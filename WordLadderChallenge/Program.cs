@@ -16,9 +16,15 @@ namespace WordLadderChallenge
                     SourceWord = args[0],
                     DestinationWord = args[1],
                     Dictionary = dictionary,
-                    PathToResultFile = args[4]
                 };
-                wordLadderSolver.Solve();
+                var solution = wordLadderSolver.Solve();
+                if(solution is null)
+                {
+                    Console.WriteLine("No solution found");
+                } else
+                {
+                    File.WriteAllLines(args[4], solution.Ladder);
+                }
             }
         }
 
