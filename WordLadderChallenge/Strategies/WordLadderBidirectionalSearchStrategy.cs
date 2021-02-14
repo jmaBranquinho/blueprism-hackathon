@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using WordLadderChallenge.Abstractions;
 using WordLadderChallenge.Models;
@@ -11,77 +10,37 @@ namespace WordLadderChallenge.Strategies
     {
         public override IEnumerable<string> Solve()
         {
-            ValidInputParameters();
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            OptimizeDictionaryToWordLength(SourceWord.Length);
-
-            var wordLadder = ApplyBdsAlgorithm();
-
-            stopwatch.Stop();
-            if (Debugger.IsAttached)
+            return ValidateExecuteAndTimeAlgorithm(() =>
             {
-                Console.WriteLine("Solution found in {0} ms", stopwatch.Elapsed);
-            }
-
-            return wordLadder;
+                return ApplyBdsAlgorithm();
+            });
         }
 
-        public IEnumerable<string> ApplyBdsAlgorithm()
+        private IEnumerable<string> ApplyBdsAlgorithm()
         {
-            var sourceIterationData = new WordLadderBdsIterationData
-            {
-                Node = new Node 
-                {
-                    Word = SourceWord,
-                    Level = 1,
-                },
-                WordLadderQueue = new Queue<Node>(),
-                VisitedNodeList = new Dictionary<String, int>() { { SourceWord, 1 } },
-            };
-            sourceIterationData.WordLadderQueue.Enqueue(sourceIterationData.Node);
+            var (sourceIterationData, destinationIterationData) = GetSourceAndDestinationBdsIterationData();
 
-            var destinationIterationData = new WordLadderBdsIterationData
-            {
-                Node = new Node
-                {
-                    Word = DestinationWord,
-                    Level = 1,
-                },
-                WordLadderQueue = new Queue<Node>(),
-                VisitedNodeList = new Dictionary<String, int>() { { DestinationWord, 1 } },
-            };
-            destinationIterationData.WordLadderQueue.Enqueue(destinationIterationData.Node);
-
-            sourceIterationData.OpositeIterationData = destinationIterationData;
-            destinationIterationData.OpositeIterationData = sourceIterationData;
             var iterationDataList = new List<WordLadderBdsIterationData>
             {
                 sourceIterationData,
                 destinationIterationData
             };
 
-            while (sourceIterationData.WordLadderQueue.Count > 0 && destinationIterationData.WordLadderQueue.Count > 0)
+            while (sourceIterationData.WordLadderQueue.Any() && destinationIterationData.WordLadderQueue.Any())
             {
                 foreach (var iterationData in iterationDataList)
                 {
                     var currentNode = iterationData.WordLadderQueue.Dequeue();
 
-                    foreach(var dictionaryWord in Dictionary)
+                    foreach (var dictionaryWord in Dictionary)
                     {
                         var isAdjacentAndNotVisited = HasOneCharacterDistance(currentNode.Word, dictionaryWord) && !iterationData.VisitedNodeList.ContainsKey(dictionaryWord);
                         if (isAdjacentAndNotVisited)
                         {
-                            var unvisitedNode = new Node {
-                                Word = dictionaryWord,
-                                Level = currentNode.Level + 1,
-                            };
-                            iterationData.WordLadderQueue.Enqueue(unvisitedNode);
-                            iterationData.VisitedNodeList.Add(dictionaryWord, currentNode.Level + 1);
+                            var unvisitedNode = AddUnvisitedWordToQueueAndVisitedList(iterationData, currentNode, dictionaryWord);
 
-                            if (iterationData.OpositeIterationData.VisitedNodeList.ContainsKey(unvisitedNode.Word))
+                            var hasMatchInOpositeIteration = iterationData.OpositeIterationData.VisitedNodeList.ContainsKey(unvisitedNode.Word);
+                            if (hasMatchInOpositeIteration)
                             {
                                 var wordLadder = BackTrack(iterationData, unvisitedNode);
                                 return wordLadder;
@@ -93,30 +52,88 @@ namespace WordLadderChallenge.Strategies
             return Enumerable.Empty<string>();
         }
 
-        private List<string> BackTrack(WordLadderBdsIterationData iterationData, Node unvisitedNode)
+        private static WordNode AddUnvisitedWordToQueueAndVisitedList(WordLadderBdsIterationData iterationData, WordNode currentNode, string dictionaryWord)
         {
-            var isIterationFromEndToStart = iterationData.Node.Word == DestinationWord;
-            if(!isIterationFromEndToStart)
+            var nextLevel = currentNode.Level + 1;
+            var unvisitedNode = new WordNode
+            {
+                Word = dictionaryWord,
+                Level = nextLevel,
+            };
+            iterationData.WordLadderQueue.Enqueue(unvisitedNode);
+            iterationData.VisitedNodeList.Add(dictionaryWord, nextLevel);
+            return unvisitedNode;
+        }
+
+        private List<string> BackTrack(WordLadderBdsIterationData iterationData, WordNode matchingNode)
+        {
+            iterationData = MirrorIterationDataIfOrderedFromStartToEnd(iterationData);
+
+            var wordLadder = new List<string>();
+
+            wordLadder.AddRange(BacktrackAndGetNodes(iterationData.OpositeIterationData, level: matchingNode.Level).Reverse());
+
+            wordLadder.Add(matchingNode.Word);
+
+            wordLadder.AddRange(BacktrackAndGetNodes(iterationData, level: iterationData.OpositeIterationData.VisitedNodeList[matchingNode.Word]));
+
+            return wordLadder;
+        }
+
+        private WordLadderBdsIterationData MirrorIterationDataIfOrderedFromStartToEnd(WordLadderBdsIterationData iterationData)
+        {
+            var isIterationFromEndToStart = iterationData.StartingNode.Word == DestinationWord;
+            if (!isIterationFromEndToStart)
             {
                 iterationData = iterationData.OpositeIterationData;
             }
 
-            var levelDifferenceToOpposite = iterationData.OpositeIterationData.VisitedNodeList[unvisitedNode.Word];
-            var back = new List<string>();
-            for (int level = 0; level <= levelDifferenceToOpposite; level++)
+            return iterationData;
+        }
+
+        private ICollection<string> BacktrackAndGetNodes(WordLadderBdsIterationData iterationData, int level)
+        {
+            var halfWordLadder = new List<string>();
+            for (int currentLevel = 1; currentLevel <= level; currentLevel++)
             {
-                back.Add(iterationData.VisitedNodeList.First(x => iterationData.OpositeIterationData.VisitedNodeList.Any(y => IsCharacterDistanceWithinLimit(x.Key, y.Key, level))).Key);
+                halfWordLadder.Add(GetPreviousWordNode(iterationData, currentLevel));
             }
 
-            var levelDifferenceToSame = unvisitedNode.Level;
-            var front = new List<string>();
-            for (int level = levelDifferenceToSame; level >= 0; level--)
-            {
-                front.Add(iterationData.OpositeIterationData.VisitedNodeList.First(x => iterationData.VisitedNodeList.Any(y => IsCharacterDistanceWithinLimit(x.Key, y.Key, level))).Key);
-            }
+            return halfWordLadder;
+        }
 
-            front.AddRange(back);
-            return new HashSet<string>(front).ToList();
+        private string GetPreviousWordNode(WordLadderBdsIterationData iterationData, int currentLevel)
+        {
+            return iterationData.VisitedNodeList.First(
+                word1 => iterationData.OpositeIterationData.VisitedNodeList.Any(
+                    word2 => IsCharacterDistanceWithinLimit(word1.Key, word2.Key, currentLevel))).Key;
+        }
+
+        private (WordLadderBdsIterationData, WordLadderBdsIterationData) GetSourceAndDestinationBdsIterationData()
+        {
+            var sourceIterationData = GetBdsIterationData(SourceWord);
+            var destinationIterationData = GetBdsIterationData(DestinationWord);
+
+            sourceIterationData.OpositeIterationData = destinationIterationData;
+            destinationIterationData.OpositeIterationData = sourceIterationData;
+
+            return (sourceIterationData, destinationIterationData);
+        }
+
+        private WordLadderBdsIterationData GetBdsIterationData(string word)
+        {
+            var sourceIterationData = new WordLadderBdsIterationData
+            {
+                StartingNode = new WordNode
+                {
+                    Word = word,
+                    Level = 0,
+                },
+                WordLadderQueue = new Queue<WordNode>(),
+                VisitedNodeList = new Dictionary<String, int>() { { word, 0 } },
+            };
+            sourceIterationData.WordLadderQueue.Enqueue(sourceIterationData.StartingNode);
+            return sourceIterationData;
         }
 
     }

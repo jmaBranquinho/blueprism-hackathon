@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using WordLadderChallenge.Abstractions;
 using WordLadderChallenge.Models;
@@ -11,23 +9,13 @@ namespace WordLadderChallenge.Strategies
     {
         public override IEnumerable<string> Solve()
         {
-            ValidInputParameters();
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            OptimizeDictionaryToWordLength(SourceWord.Length);
-
-            var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
-            var result = ApplyRecursiveDfsAlgorithm(wordLadderStepList).FirstOrDefault();
-
-            stopwatch.Stop();
-            if (Debugger.IsAttached)
+            return ValidateExecuteAndTimeAlgorithm(() =>
             {
-                Console.WriteLine("Solution found in {0} ms", stopwatch.Elapsed);
-            }
-
-            return result?.Ladder ?? Enumerable.Empty<string>();
+                var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
+                return ApplyRecursiveDfsAlgorithm(wordLadderStepList)
+                    .FirstOrDefault()?.Ladder
+                    ?? Enumerable.Empty<string>();
+            });
         }
 
         private IEnumerable<WordLadderStep> ApplyRecursiveDfsAlgorithm(ICollection<WordLadderStep> wordLadders)
