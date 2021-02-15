@@ -33,7 +33,7 @@ namespace WordLadderChallenge.Abstractions
             stopwatch.Stop();
             if (Debugger.IsAttached)
             {
-                Console.WriteLine("Solution found in {0} ms", stopwatch.Elapsed);
+                Console.WriteLine("Solution found in {0} ms", stopwatch.Elapsed.TotalMilliseconds);
                 if(!(result is null) && result.Any())
                 {
                     Console.WriteLine($"Solution is: {string.Join(" => ", result)}");
