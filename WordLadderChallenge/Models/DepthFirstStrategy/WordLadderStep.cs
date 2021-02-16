@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace WordLadderChallenge.Models
+namespace WordLadderChallenge.Models.DepthFirstStrategy
 {
     /// <summary>
     /// Contains a possible solution to the word ladder puzzle

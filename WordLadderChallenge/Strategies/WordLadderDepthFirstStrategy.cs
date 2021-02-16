@@ -1,26 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using WordLadderChallenge.Abstractions;
-using WordLadderChallenge.Models;
+using WordLadderChallenge.Extensions.Utils;
+using WordLadderChallenge.Interfaces;
+using WordLadderChallenge.Models.DepthFirstStrategy;
 
 namespace WordLadderChallenge.Strategies
 {
     public class WordLadderDepthFirstStrategy : WordLadderStrategyBase
     {
-        public override IEnumerable<string> Solve()
+        public WordLadderDepthFirstStrategy(IFileReadWriterService fileReadWriterService) 
+            : base(fileReadWriterService)
         {
-            return ValidateExecuteAndTimeAlgorithm(() =>
-            {
-                var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
-                return ApplyRecursiveDfsAlgorithm(wordLadderStepList)
-                    .FirstOrDefault()?.Ladder
-                    ?? Enumerable.Empty<string>();
-            });
+        }
+
+        protected override IEnumerable<string> ApplyAlgorithm()
+        {
+            var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
+            return ApplyRecursiveDfsAlgorithm(wordLadderStepList)
+                .FirstOrDefault()?.Ladder
+                ?? Enumerable.Empty<string>();
         }
 
         private IEnumerable<WordLadderStep> ApplyRecursiveDfsAlgorithm(ICollection<WordLadderStep> wordLadders)
         {
-            if (wordLadders is null || !wordLadders.Any())
+            if (wordLadders.IsNullOrEmpty())
             {
                 return Enumerable.Empty<WordLadderStep>();
             }
@@ -29,7 +33,7 @@ namespace WordLadderChallenge.Strategies
 
             foreach (var wordLadder in wordLadders)
             {
-                var neighborList = Dictionary.Where(word => wordLadder.CurrentWord != word && HasOneCharacterDistance(word, wordLadder.CurrentWord)).ToList();
+                var neighborList = _dictionary.Where(word => wordLadder.CurrentWord != word && HasOneCharacterDistance(word, wordLadder.CurrentWord)).ToList();
 
                 var containsLastWord = neighborList.Contains(DestinationWord);
                 if (containsLastWord)

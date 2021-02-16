@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using WordLadderChallenge.Abstractions;
-using WordLadderChallenge.Models;
+using WordLadderChallenge.Extensions.Utils;
+using WordLadderChallenge.Interfaces;
+using WordLadderChallenge.Models.BidirectionalSearchStrategy;
 
 namespace WordLadderChallenge.Strategies
 {
     public class WordLadderBidirectionalSearchStrategy : WordLadderStrategyBase
     {
-        public override IEnumerable<string> Solve()
+        public WordLadderBidirectionalSearchStrategy(IFileReadWriterService fileReadWriterService) 
+            : base(fileReadWriterService)
         {
-            return ValidateExecuteAndTimeAlgorithm(() =>
-            {
-                return ApplyBdsAlgorithm();
-            });
+        }
+
+        protected override IEnumerable<string> ApplyAlgorithm()
+        {
+            return ApplyBdsAlgorithm();
         }
 
         private IEnumerable<string> ApplyBdsAlgorithm()
@@ -26,13 +31,18 @@ namespace WordLadderChallenge.Strategies
                 destinationIterationData
             };
 
+            Debug.Assert(!sourceIterationData.WordLadderQueue.IsNullOrEmpty() 
+                && !destinationIterationData.WordLadderQueue.IsNullOrEmpty(), 
+                $"One or more queues already start empty or null");
+            Debug.Assert(!iterationDataList.IsNullOrEmpty(), $"Iteration data is null or empty");
+
             while (sourceIterationData.WordLadderQueue.Any() && destinationIterationData.WordLadderQueue.Any())
             {
                 foreach (var iterationData in iterationDataList)
                 {
                     var currentNode = iterationData.WordLadderQueue.Dequeue();
 
-                    foreach (var dictionaryWord in Dictionary)
+                    foreach (var dictionaryWord in _dictionary)
                     {
                         var isAdjacentAndNotVisited = HasOneCharacterDistance(currentNode.Word, dictionaryWord) && !iterationData.VisitedNodeList.ContainsKey(dictionaryWord);
                         if (isAdjacentAndNotVisited)

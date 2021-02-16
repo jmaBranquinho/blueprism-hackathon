@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WordLadderChallenge.Abstractions
+namespace WordLadderChallenge.Interfaces
 {
     /// <summary>
     /// Provides methods to solve a word ladder puzzle
@@ -18,12 +18,18 @@ namespace WordLadderChallenge.Abstractions
         string DestinationWord { get; set; }
 
         /// <summary>
-        /// List of all the available words
+        /// Path to the dictionary file
         /// </summary>
-        ICollection<string> Dictionary { get; set; }
-        
+        string PathToDictionary { get; set; }
+
         /// <summary>
-        /// If the solution is found returns the WordLadderStep with all the steps from the source word to the destination
+        /// Path to where the solution will be written
+        /// </summary>
+        string PathToSolution { get; set; }
+
+        /// <summary>
+        /// If the solution is found returns true and writes the solution to the solution file, otherwise false is returned and
+        /// nothing is written
         /// Otherwise returns null
         /// </summary>
         /// <returns></returns>

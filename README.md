@@ -8,22 +8,24 @@ The secondary goals are to do this as performant as possible without ever sacrif
 
 # Tools used
 
-The IDE I used was visual studio 2019, I also used StackEdit to edit this MD file and for version control I used Git, Sourcetree and Github. Since its a smaller and individual project I chose not use gitflow.
+The IDE I used was visual studio 2019, I also used StackEdit to edit this MD file and for version control I used Git, Sourcetree and Github. Since its a smaller and individual project I chose not use gitflow or any logs.
 
 About the code, I used C# 8 since its the one that comes with .NET3.1.
 
 I used a few NuGet packages:
 
--  XUnit - as the unit testing framework
-- AutoFixture - to populate variables for the unit tests, to make my unit tests easier to write and refactoring-safe
-- NSubstitute - it's the one I plan to use to mock my dependencies
-- GuardClauses - I plan to use this to make all the verifications a little bit smaller
+- GuardClauses - makes all the verifications a little bit smaller and easier to read
+- XUnit - the unit testing framework I feel most confortable with
+- AutoFixture - used it to populate variables for the unit tests, to make my unit tests easier to write and refactoring-safe
+- NSubstitute - mocks my dependencies (I prefer it to moq since its more readable and user-friendly)
+- FluentAssertions - Improves assertions readability
 
-I used the following design patterns:
+I used the following design patterns and principles:
 
 - Strategy pattern - although only one algorithm may be used to provide the solution, I had to test a few approaches without having to change code previously done
-
-Regarding my coding methodology, I applied TDD while writing most of the code and my unit tests follow the following convention: "MethodName_**When**StateUnderTest_**Should**ExceptedBehavior".
+- SOLID - I tried to apply the SOLID principles for a cleaner and efficient code base
+- DRY - I tried to DRY the code but without ever sacrificing readability
+- KISS - I tried to make the code as simpler as I could
 
 The PC I used was my work laptop, i7 with 16GB RAM but with a lot of background processes, since mine is currently broken.
 
@@ -62,7 +64,7 @@ This implementation had a performance of O(b<sup>d</sup>) for both space and tim
 I started by experimenting and unknowingly implementing the depth first algorithm without doing research. I later researched a bit and improved the code so the nomenclature would match the algorithm's and I also found out there was a better solution. Then I implemented the bidirectional search algorithm and then I also refactored it to keep the code DRY and readable.
 I used TDD throughout all the implementations.
 
-### Performance in my machine
+### Performance in my machine (in debug mode)
 non-recursive DFS
 - after the refactoring I removed the implementation but was about 2-5ms faster than the recursive DFS (explained in the long story)
 
@@ -72,8 +74,29 @@ recursive DFS (mean)
 BDS (mean)
 - 25 ms
 
+# Code architecture, standards and methodology
+
+Regarding my coding methodology, I applied TDD while writing most of the code and my unit tests follow the following convention: "MethodName_**When**StateUnderTest_**Should**ExceptedBehavior".
+
+Each file is organized in its corresponding folder: 
+
+- interfaces are in the interfaces folder
+- abstractions are in the abstractions folder
+- exceptions are in the exceptions folder
+- stratagies are in the stratagies folder
+- services are in the services folder
+- extension methods (custom guard clauses) in the extensions folder in their respective folder
+- the models for each strategy are in the models folder and in their respective strategy folder
+
+To add a new algorithm, there is an interface to be implemented and there is also an abstracted base that will help with most non-algorithmic operations. The unit tests also have an abstract class.
+
+Methods are organized according to the visibility and microsoft nomenclature patterns were followed. All public methods have guard clauses and private methods have debug asserts. Public methods, models, interfaces and abstractions also have a small documentation to help the next developer extending the code.
+
 # Some Links I found useful
 https://www.javatpoint.com/ai-uninformed-search-algorithms - study of multiple algorithms
+
 https://towardsdatascience.com/top-algorithms-and-data-structures-you-really-need-to-know-ab9a2a91c7b5 - study of multiple algorithms
+
 https://efficientcodeblog.wordpress.com/2017/12/13/bidirectional-search-two-end-bfs/ - implementation of BDS in C++
+
 https://www.geeksforgeeks.org/word-ladder-set-2-bi-directional-bfs/ - implementation of BDS in C#

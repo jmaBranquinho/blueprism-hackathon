@@ -1,4 +1,4 @@
-﻿namespace WordLadderChallenge.Models
+﻿namespace WordLadderChallenge.Models.BidirectionalSearchStrategy
 {
     /// <summary>
     /// Contains a word and the distance to the starting node

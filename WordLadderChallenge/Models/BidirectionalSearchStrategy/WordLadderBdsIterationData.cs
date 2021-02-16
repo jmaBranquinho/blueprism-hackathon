@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WordLadderChallenge.Models
+namespace WordLadderChallenge.Models.BidirectionalSearchStrategy
 {
     /// <summary>
     /// Contains the information to iterate a dictionary using BDS algorithm

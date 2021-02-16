@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using WordLadderChallenge.Extensions.Utils;
+using WordLadderChallenge.Services;
 using WordLadderChallenge.Strategies;
 
 namespace WordLadderChallenge
@@ -15,45 +16,26 @@ namespace WordLadderChallenge
                 args = ProvideDefaultArguments();
             }
 
-            if (HasValidArguments(args))
+            try
             {
-                var dictionary = File.ReadAllLines(path: args[2]);
-                var wordLadderSolver = new WordLadderBidirectionalSearchStrategy()
+                var wordLadderSolver = new WordLadderBidirectionalSearchStrategy(new FileReadWriterService())
                 {
                     SourceWord = args[0],
                     DestinationWord = args[1],
-                    Dictionary = dictionary.ToList(),
+                    PathToDictionary = args[2],
+                    PathToSolution = args[3],
                 };
                 var solution = wordLadderSolver.Solve();
-                if(solution is null || !solution.Any())
+
+                if (solution.IsNullOrEmpty())
                 {
                     Console.WriteLine("No solution found");
-                } else
-                {
-                    File.WriteAllLines(args[3], solution);
                 }
-            }
-        }
-
-        private static bool HasValidArguments(string[] args)
-        {
-            if (args.Length != 4)
+            } 
+            catch(Exception exception)
             {
-                Console.WriteLine("Please provide the required arguments");
-                return false;
+                Console.WriteLine(exception.Message);
             }
-            if (string.IsNullOrWhiteSpace(args[0]) || string.IsNullOrWhiteSpace(args[1]))
-            {
-                Console.WriteLine("Source and/or destination word is not valid");
-                return false;
-            }
-            if (!File.Exists(args[2]))
-            {
-                Console.WriteLine("Path to dictionary is not valid");
-                return false;
-            }
-
-            return true;
         }
 
         private static string[] ProvideDefaultArguments()
