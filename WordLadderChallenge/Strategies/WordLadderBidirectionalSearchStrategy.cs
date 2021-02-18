@@ -42,7 +42,7 @@ namespace WordLadderChallenge.Strategies
                 {
                     var currentNode = iterationData.WordLadderQueue.Dequeue();
 
-                    foreach (var dictionaryWord in _dictionary)
+                    foreach (var dictionaryWord in Dictionary)
                     {
                         var isAdjacentAndNotVisited = HasOneCharacterDistance(currentNode.Word, dictionaryWord) && !iterationData.VisitedNodeList.ContainsKey(dictionaryWord);
                         if (isAdjacentAndNotVisited)

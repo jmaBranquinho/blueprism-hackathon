@@ -17,6 +17,7 @@ namespace WordLadderChallenge.Strategies
         protected override IEnumerable<string> ApplyAlgorithm()
         {
             var wordLadderStepList = new List<WordLadderStep>() { GetWordLadderStepForSourceWord() };
+
             return ApplyRecursiveDfsAlgorithm(wordLadderStepList)
                 .FirstOrDefault()?.Ladder
                 ?? Enumerable.Empty<string>();
@@ -33,7 +34,7 @@ namespace WordLadderChallenge.Strategies
 
             foreach (var wordLadder in wordLadders)
             {
-                var neighborList = _dictionary.Where(word => wordLadder.CurrentWord != word && HasOneCharacterDistance(word, wordLadder.CurrentWord)).ToList();
+                var neighborList = Dictionary.Where(word => wordLadder.CurrentWord != word && HasOneCharacterDistance(word, wordLadder.CurrentWord)).ToList();
 
                 var containsLastWord = neighborList.Contains(DestinationWord);
                 if (containsLastWord)

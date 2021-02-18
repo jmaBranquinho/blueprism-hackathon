@@ -3,36 +3,21 @@
 namespace WordLadderChallenge.Interfaces
 {
     /// <summary>
-    /// Provides methods to solve a word ladder puzzle
+    /// Provides methods to solve word ladder puzzles
     /// </summary>
     public interface IWordLadderStrategy
     {
         /// <summary>
-        /// Starting word
+        /// Returns the word ladder as a list of strings if a solution is found, or an empty list otherwise
         /// </summary>
-        string SourceWord { get; set; }
-
-        /// <summary>
-        /// Word to be found
-        /// </summary>
-        string DestinationWord { get; set; }
-
-        /// <summary>
-        /// Path to the dictionary file
-        /// </summary>
-        string PathToDictionary { get; set; }
-
-        /// <summary>
-        /// Path to where the solution will be written
-        /// </summary>
-        string PathToSolution { get; set; }
-
-        /// <summary>
-        /// If the solution is found returns true and writes the solution to the solution file, otherwise false is returned and
-        /// nothing is written
-        /// Otherwise returns null
-        /// </summary>
+        /// <param name="sourceWord"></param>
+        /// <param name="destinationWord"></param>
         /// <returns></returns>
-        IEnumerable<string> Solve();
+        IEnumerable<string> Solve(string sourceWord, string destinationWord);
+
+        /// <summary>
+        /// Updates the dictionary with the words provided by the FileReadWriterService
+        /// </summary>
+        void ReadDictionary();
     }
 }

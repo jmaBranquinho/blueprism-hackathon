@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using WordLadderChallenge.Extensions.Utils;
 using WordLadderChallenge.Services;
 using WordLadderChallenge.Strategies;
@@ -11,21 +9,25 @@ namespace WordLadderChallenge
     {
         static void Main(string[] args)
         {
-            if (Debugger.IsAttached)
+            if(args.Length < 4)
             {
-                args = ProvideDefaultArguments();
+                Console.WriteLine("Invalid number of arguments provided");
+                return;
             }
-
             try
             {
-                var wordLadderSolver = new WordLadderBidirectionalSearchStrategy(new FileReadWriterService())
+                var pathToDictionary = args[2];
+                var pathToSolution = args[3];
+
+                var fileReadWriter = new FileReadWriterService
                 {
-                    SourceWord = args[0],
-                    DestinationWord = args[1],
-                    PathToDictionary = args[2],
-                    PathToSolution = args[3],
+                    ReadFilePath = pathToDictionary,
+                    WriteFilePath = pathToSolution,
                 };
-                var solution = wordLadderSolver.Solve();
+
+                var wordLadderSolver = new WordLadderBidirectionalSearchStrategy(fileReadWriter);
+
+                var solution = wordLadderSolver.Solve(sourceWord: args[0], destinationWord: args[1]);
 
                 if (solution.IsNullOrEmpty())
                 {
@@ -36,14 +38,6 @@ namespace WordLadderChallenge
             {
                 Console.WriteLine(exception.Message);
             }
-        }
-
-        private static string[] ProvideDefaultArguments()
-        {
-            var solutionFolder = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            var pathToDictionary = Path.Combine(solutionFolder, @"Dictionary.txt");
-            var pathToResults = Path.Combine(solutionFolder, @"Results.txt");
-            return new string[] { "same", "cost", pathToDictionary, pathToResults };
         }
     }
 }

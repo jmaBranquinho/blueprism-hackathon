@@ -8,17 +8,26 @@ namespace WordLadderChallenge.Interfaces
     public interface IFileReadWriterService
     {
         /// <summary>
+        /// Provides the path to a file to be read
+        /// </summary>
+        string ReadFilePath { get; set; }
+
+        /// <summary>
+        /// Provides the path to a file to be written
+        /// </summary>
+        string WriteFilePath { get; set; }
+
+        /// <summary>
         /// Returns a collection of strings, each one representing a line of the file of the path provided
         /// </summary>
-        /// <param name="pathToDictionaryFile"></param>
         /// <returns></returns>
-        ICollection<string> GetAllFileLines(string pathToDictionaryFile);
+        ICollection<string> GetAllFileLines();
 
         /// <summary>
         /// Writes all the content, in lines, to the path provided
         /// </summary>
-        /// <param name="pathToSolutionFile"></param>
         /// <param name="content"></param>
-        void WriteToFile(string pathToSolutionFile, IEnumerable<string> content);
+        /// <param name="isToOverwriteContent"></param>
+        void WriteToFile(IEnumerable<string> content, bool isToOverwriteContent = true);
     }
 }

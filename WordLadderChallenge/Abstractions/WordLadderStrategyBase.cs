@@ -13,29 +13,71 @@ namespace WordLadderChallenge.Abstractions
     /// </summary>
     public abstract class WordLadderStrategyBase : IWordLadderStrategy
     {
-        public string SourceWord { get; set; }
-        public string DestinationWord { get; set; }
-        public string PathToDictionary { get; set; }
-        public string PathToSolution { get; set; }
+        protected string SourceWord { get; private set; }
 
-        protected ICollection<string> _dictionary;
-        protected readonly IFileReadWriterService _fileReadWriterService;
+        protected string DestinationWord { get; private set; }
+
+        protected ICollection<string> Dictionary { get; private set; }
+
+        protected readonly IFileReadWriterService FileReadWriterService;
+
+        private bool _isDictionaryOptimized;
 
         protected WordLadderStrategyBase(IFileReadWriterService fileReadWriterService)
         {
-            _fileReadWriterService = fileReadWriterService;
+            FileReadWriterService = fileReadWriterService;
+            _isDictionaryOptimized = false;
         }
 
         /// <summary>
         /// Executes the algorithm after reading the dictionary and run some optimizations. Returns the word ladder solution if found.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> Solve()
+        public IEnumerable<string> Solve(string sourceWord, string destinationWord)
         {
-            return ValidateExecuteAndTimeAlgorithm(() =>
-            {
+            Guard.Against.NullOrWhiteSpace(sourceWord, nameof(sourceWord));
+            Guard.Against.NullOrWhiteSpace(destinationWord, nameof(destinationWord));
+            Guard.Against.InvalidWordLength(sourceWord, destinationWord);
+
+            SourceWord = sourceWord.ToLower();
+            DestinationWord = destinationWord.ToLower();
+
+            return ValidateExecuteAndTimeAlgorithm(sourceWord, destinationWord, () => {
                 return ApplyAlgorithm();
             });
+        }
+
+        /// <summary>
+        /// Updates the dictionary with the words provided by the FileReadWriterService
+        /// </summary>
+        public void ReadDictionary()
+        {
+            Dictionary = FileReadWriterService.GetAllFileLines();
+            _isDictionaryOptimized = false;
+        }
+
+        /// <summary>
+        /// Executes dictionary optimizations, runs and times the algorithm. Returns the word ladder solution if found.
+        /// </summary>
+        /// <param name="executeAlgorithm"></param>
+        /// <returns></returns>
+        protected IEnumerable<string> ValidateExecuteAndTimeAlgorithm(string sourceWord, string destinationWord, 
+            Func<IEnumerable<string>> executeAlgorithm)
+        {
+            if(Dictionary.IsNullOrEmpty() || !_isDictionaryOptimized)
+            {
+                ReadAndOptimizeDictionaryToWordLength(sourceWord, destinationWord);
+            }
+
+            var stopwatch = StartTimer();
+
+            var result = executeAlgorithm();
+
+            StopTimer(stopwatch, result);
+
+            WriteSolutionIfSucessful(result);
+
+            return result;
         }
 
         /// <summary>
@@ -45,44 +87,6 @@ namespace WordLadderChallenge.Abstractions
         protected virtual IEnumerable<string> ApplyAlgorithm()
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Removes words great or smaller than the provided length. Also turns all the words to lower case and removes the source word
-        /// </summary>
-        /// <param name="length"></param>
-        protected virtual void OptimizeDictionaryToWordLength(int length)
-        {
-            _dictionary.Remove(SourceWord);
-            _dictionary = new HashSet<string>(_dictionary.Where(word => word.Length == length).Select(word => word.ToLower()));
-        }
-
-        /// <summary>
-        /// Executes dictionary optimizations, runs and times the algorithm. Returns the word ladder solution if found.
-        /// </summary>
-        /// <param name="executeAlgorithm"></param>
-        /// <returns></returns>
-        protected IEnumerable<string> ValidateExecuteAndTimeAlgorithm(Func<IEnumerable<string>> executeAlgorithm)
-        {
-            ReadDictionary();
-
-            Guard.Against.NullOrWhiteSpace(SourceWord, nameof(SourceWord));
-            Guard.Against.NullOrWhiteSpace(DestinationWord, nameof(DestinationWord));
-            Guard.Against.InvalidWordLength(SourceWord, DestinationWord);
-            Guard.Against.InvalidDictionary(_dictionary, new List<string> { SourceWord, DestinationWord });
-            Guard.Against.InvalidFile(PathToSolution);
-
-            var stopwatch = StartTimer();
-
-            OptimizeWordCapitalizationForSearch();
-            OptimizeDictionaryToWordLength(SourceWord.Length);
-
-            var result = executeAlgorithm();
-
-            StopTimer(stopwatch, result);
-            WriteSolutionIfSucessful(result);
-
-            return result;
         }
 
         /// <summary>
@@ -130,7 +134,7 @@ namespace WordLadderChallenge.Abstractions
             var wasSuccessful = !result.IsNullOrEmpty();
             if (wasSuccessful)
             {
-                _fileReadWriterService.WriteToFile(PathToSolution, result);
+                FileReadWriterService.WriteToFile(result);
             }
         }
 
@@ -156,15 +160,16 @@ namespace WordLadderChallenge.Abstractions
             }
         }
 
-        private void OptimizeWordCapitalizationForSearch()
+        private void ReadAndOptimizeDictionaryToWordLength(string sourceWord, string destinationWord)
         {
-            SourceWord = SourceWord.ToLower();
-            DestinationWord = DestinationWord.ToLower();
-        }
+            if (Dictionary.IsNullOrEmpty())
+            {
+                ReadDictionary();
+            }
+            Guard.Against.InvalidDictionary(Dictionary, new List<string> { sourceWord, destinationWord });
 
-        private void ReadDictionary()
-        {
-            _dictionary = _fileReadWriterService.GetAllFileLines(PathToDictionary);
+            Dictionary = new HashSet<string>(Dictionary.Where(word => word.Length == sourceWord.Length).Select(word => word.ToLower()));
+            _isDictionaryOptimized = true;
         }
 
     }

@@ -1,3 +1,4 @@
+
 # Blueprism Hackathon
 This repository is my solution to the blueprism hackathon challenge. Bellow I explain how I interpreted the challenge, the tools and methodologies I use and why I use it, how I tackled the problem and I leave a few references I used.
 
@@ -66,7 +67,7 @@ I used TDD throughout all the implementations.
 
 ### Performance in my machine (in debug mode)
 non-recursive DFS
-- after the refactoring I removed the implementation but was about 2-5ms faster than the recursive DFS (explained in the long story)
+- after the refactoring I removed the implementation but was about 2-5ms faster than the recursive DFS (this behavior is explained in the long story)
 
 recursive DFS (mean)
 - 362 ms
@@ -74,7 +75,7 @@ recursive DFS (mean)
 BDS (mean)
 - 25 ms
 
-# Code architecture, standards and methodology
+# Code architecture, standards and why I implemented things in such way
 
 Regarding my coding methodology, I applied TDD while writing most of the code and my unit tests follow the following convention: "MethodName_**When**StateUnderTest_**Should**ExceptedBehavior".
 
@@ -88,9 +89,21 @@ Each file is organized in its corresponding folder:
 - extension methods (custom guard clauses) in the extensions folder in their respective folder
 - the models for each strategy are in the models folder and in their respective strategy folder
 
-To add a new algorithm, there is an interface to be implemented and there is also an abstracted base that will help with most non-algorithmic operations. The unit tests also have an abstract class.
-
 Methods are organized according to the visibility and microsoft nomenclature patterns were followed. All public methods have guard clauses and private methods have debug asserts. Public methods, models, interfaces and abstractions also have a small documentation to help the next developer extending the code.
+
+To add a new algorithm, there is an interface to be implemented and there is also an abstracted base, which helps with most non-algorithmic operations. The unit tests also have an abstract class. Each strategy should override the ApplyAlgorithm method and only focus on how to get to the solution as quickly as possible, but always respecting the rules.
+
+The main idea of this implementation is to keep things open for extension while keeping them closed to modifications as much as possible and also to keep the responsibilities properly separated. Each strategy should only be concerned with the algorithm, and leave the rest to the base.
+
+The word ladder strategies receives a FileReadWriteService instance to remove the responsibility of interacting with files, making them more testable and avoiding any coupling with a specific implementation (a new implementation of the FileReadWriteService can read/write to/from a database or to/from the screen, for example). Therefore the paths should be properties of the FileReadWriteService.
+
+The source and destination words are provided in the Solve method, so a single strategy instance can solve several word ladder puzzles. I chose to make the algorithm time measurement as a required feature of the strategies, since its useful to compare algorithms, and simply hiding the results if the instance running is not being debugged.
+
+If the dictionary is empty, the strategies will attempt to get it from the FileReadWriteService, but in case the dictionary needs to be updated between puzzles the ReadDictionary method can be used. This method will replace the dictionary words with newer ones provided by the service.
+
+Another concept of this solution is to fail as fast as possible if any parameter or setting is wrong, and throw a meaningful exception to be displayed to the user/developer so they can fix the issue.
+
+The FileReadWriteService was intentionally left out of the unit tests. The file read/write operations could be extracted to overridable methods to test the remaining logic, but since there was no remaining  logic to test (that was not from the guardclause library) it was not necessary to create unit test file.
 
 # Some Links I found useful
 https://www.javatpoint.com/ai-uninformed-search-algorithms - study of multiple algorithms

@@ -2,26 +2,54 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using WordLadderChallenge.Abstractions;
 using WordLadderChallenge.Interfaces;
 
 namespace WordLadderChallenge.Services
 {
+    /// <summary>
+    /// Reads or writes text to files
+    /// </summary>
     public class FileReadWriterService : IFileReadWriterService
     {
-        public ICollection<string> GetAllFileLines(string pathToDictionaryFile)
-        {
-            Guard.Against.InvalidFile(pathToDictionaryFile);
+        /// <summary>
+        /// Provides the path to a file to be read
+        /// </summary>
+        public string ReadFilePath { get; set; }
 
-            return File.ReadAllLines(pathToDictionaryFile).ToList();
+        /// <summary>
+        /// Provides the path to a file to be written
+        /// </summary>
+        public string WriteFilePath { get; set; }
+
+        /// <summary>
+        /// Returns a collection of strings, each one representing a line of the file of the path provided
+        /// </summary>
+        /// <returns></returns>
+        public ICollection<string> GetAllFileLines()
+        {
+            Guard.Against.InvalidFile(ReadFilePath);
+
+            return File.ReadAllLines(ReadFilePath).ToList();
         }
 
-        public void WriteToFile(string pathToSolutionFile, IEnumerable<string> content)
+        /// <summary>
+        /// Writes all the content, in lines, to the path provided
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="isToOverwriteContent"></param>
+        public void WriteToFile(IEnumerable<string> content, bool isToOverwriteContent = true)
         {
-            Guard.Against.InvalidFile(pathToSolutionFile);
+            Guard.Against.InvalidFile(WriteFilePath);
             Guard.Against.NullOrEmpty(content, nameof(content));
 
-            File.WriteAllLines(pathToSolutionFile, content);
+            if (isToOverwriteContent)
+            {
+                File.WriteAllLines(WriteFilePath, content);
+            }
+            else
+            {
+                File.AppendAllLines(WriteFilePath, content);
+            }
         }
     }
 }

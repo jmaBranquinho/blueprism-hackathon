@@ -1,7 +1,6 @@
 using AutoFixture;
 using NSubstitute;
 using System.Collections.Generic;
-using System.Linq;
 using WordLadderChallenge.Interfaces;
 using WordLadderChallenge.Strategies;
 using WordLadderChallenge.Tests.Abstractions;
@@ -21,15 +20,9 @@ namespace WordLadderChallenge.Tests
             _pathToSolution = $"{_fixture.Create<string>()}.txt";
 
             _fileReadWriterServiceMock = Substitute.For<IFileReadWriterService>();
-            _fileReadWriterServiceMock.GetAllFileLines(_pathToDictionary).Returns(_dictionary);
+            _fileReadWriterServiceMock.GetAllFileLines().Returns(_dictionary);
 
-            _sut = new WordLadderDepthFirstStrategy(_fileReadWriterServiceMock) 
-            {
-                SourceWord = _adjacentWords.First(),
-                DestinationWord = _adjacentWords.Last(),
-                PathToDictionary = _pathToDictionary,
-                PathToSolution = _pathToSolution,
-            };
+            _sut = new WordLadderDepthFirstStrategy(_fileReadWriterServiceMock);
         }
     }
 }
