@@ -1,6 +1,6 @@
 
 # Results:
-Go the first place :)
+Got the 1st place :)
 
 # BP Hackathon
 This repository is my solution to the BP hackathon challenge. Bellow I explain how I interpreted the challenge, the tools and methodologies I use and why I use it, how I tackled the problem and I leave a few references I used.
